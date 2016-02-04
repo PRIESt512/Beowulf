@@ -19,6 +19,7 @@ using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 using Windows.Networking;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 // Документацию по шаблону элемента "Пустая страница" см. по адресу http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -42,6 +43,7 @@ namespace Beowulf
 
             tcpService.ConnectionReceived += TcpService_ConnectionReceived;
             await tcpService.BindServiceNameAsync("50000");
+            
 
             return tcpService;
         }
@@ -74,27 +76,44 @@ namespace Beowulf
             }
         }
 
-        private void Send_Click(object sender, RoutedEventArgs e)
+        private async void Send_Click(object sender, RoutedEventArgs e)
         {
+            //var openPicker = new Windows.Storage.Pickers.FolderPicker();
+            //openPicker.FileTypeFilter.Add("*");
+            //var folder = await openPicker.PickSingleFolderAsync();
 
-            var factory = new ConnectionFactory() { HostName = "localhost" };
-            using (var connection = factory.CreateConnection())
-            using (var channel = connection.CreateModel())
+            //var list = Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(folder);
+
+
+            try
             {
-                channel.QueueDeclare(queue: "hello",
-                                 durable: false,
-                                 exclusive: false,
-                                 autoDelete: false,
-                                 arguments: null);
-                var message = Message.Text;
-                var body = Encoding.UTF8.GetBytes(message);
-
-                channel.BasicPublish(exchange: "",
-                                     routingKey: "hello",
-                                     basicProperties: null,
-                                     body: body);
-
+                var file = await StorageFile.GetFileFromPathAsync(@"\\Desktop-7rpb63n\e\distribution.txt");
+                var path = file.Path;
             }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+           
+
+            //var factory = new ConnectionFactory() { HostName = "localhost" };
+            //using (var connection = factory.CreateConnection())
+            //using (var channel = connection.CreateModel())
+            //{
+            //    channel.QueueDeclare(queue: "hello",
+            //                     durable: false,
+            //                     exclusive: false,
+            //                     autoDelete: false,
+            //                     arguments: null);
+            //    var message = Message.Text;
+            //    var body = Encoding.UTF8.GetBytes(message);
+
+            //    channel.BasicPublish(exchange: "",
+            //                         routingKey: "hello",
+            //                         basicProperties: null,
+            //                         body: body);
+
+            //}
         }
 
         private async void SendSocket_Click(object sender, RoutedEventArgs e)
